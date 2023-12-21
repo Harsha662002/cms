@@ -1,7 +1,7 @@
-import contentfulPostClient from "../../lib/contentful/client";
+import client from "../../lib/contentful/client";
 
 export default async function PUT(request) {
-  const space = await contentfulPostClient.getSpace(
+  const space = await client.contentfulPostClient.getSpace(
     process.env.CONTENTFUL_SPACE_ID
   );
   console.log("SPACE ", { space });
@@ -10,16 +10,37 @@ export default async function PUT(request) {
   );
   console.log("ENV ", { environment });
 
-  const entry = environment.createEntry("blogPost", {
+  const requestBody = JSON.parse(request.body);
+
+  const {
+    title,
+    content,
+    tags,
+    coverImage,
+    author,
+    currentDate,
+    slug,
+    summary,
+  } = requestBody;
+
+  const entry = environment.createEntry("blogCard", {
     fields: {
       title: {
-        "en-US": "Harsha Vasireddy",
+        "en-US": title,
       },
-      content: {
-        "en-US": "Hey this is Harsha Vasireddy",
+      slug: {
+        "en-US": slug,
+      },
+      summary: {
+        "en-US": summary,
+      },
+      date: {
+        "en-US": currentDate,
       },
     },
   });
+
+  await entry.publish();
 
   return Response.json({ entry });
 }
